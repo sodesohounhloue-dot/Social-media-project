@@ -1,0 +1,17 @@
+fr\mosaique\accounts\AccountStatus.class
+fr\mosaique\web\AdminController$AccountResponse.class
+fr\mosaique\web\AuthController.class
+fr\mosaique\web\AuthController$UserResponse.class
+fr\mosaique\web\AuthController$CsrfResponse.class
+fr\mosaique\security\ApiCsrfFilter.class
+fr\mosaique\web\AdminController$StatusRequest.class
+fr\mosaique\web\AuthController$RegisterRequest.class
+fr\mosaique\web\AuthController$LoginRequest.class
+fr\mosaique\accounts\UserRepository.class
+fr\mosaique\accounts\SessionAccounts.class
+fr\mosaique\accounts\User.class
+fr\mosaique\MosaiqueApplication.class
+fr\mosaique\web\AuthController$ErrorResponse.class
+fr\mosaique\accounts\Admin.class
+fr\mosaique\web\AuthController$AdminCheckResponse.class
+fr\mosaique\web\AdminController.class

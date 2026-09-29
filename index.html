@@ -1,0 +1,906 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f4f5ef">
+  <meta name="description" content="Mosaïque, le réseau des petites choses qui nous rassemblent.">
+  <title>Mosaïque — Le fil du jour</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --paper: #f4f5ef;
+      --surface: #fffefa;
+      --ink: #20231f;
+      --muted: #767b72;
+      --line: #e4e7dd;
+      --green: #c8f169;
+      --green-dark: #31502c;
+      --orange: #ed6847;
+      --blue: #315fe8;
+      --serif: Georgia, 'Times New Roman', serif;
+      --sans: 'Trebuchet MS', 'Segoe UI', sans-serif;
+    }
+    html[data-theme="dark"] {
+      color-scheme: dark;
+      --paper: #171c18;
+      --surface: #222923;
+      --ink: #eff2e9;
+      --muted: #a7b0a2;
+      --line: #3b453d;
+      --green: #a8d94f;
+      --green-dark: #c7eaa0;
+      --blue: #91a9ff;
+    }
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--sans); font-size: 14px; }
+    button, input, textarea { font: inherit; }
+    button { color: inherit; }
+    button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
+    .app { width: min(1440px, 100%); min-height: 100vh; margin: 0 auto; display: grid; grid-template-columns: 226px minmax(440px, 650px) 300px; gap: 34px; padding: 0 34px; }
+    .sidebar { position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column; padding: 28px 0 24px; }
+    .brand { display: flex; align-items: center; gap: 10px; padding: 0 12px; color: var(--ink); text-decoration: none; }
+    .brand-mark { width: 34px; height: 34px; display: grid; place-items: center; border-radius: 12px 12px 12px 4px; background: var(--green); font: 700 20px var(--serif); transform: rotate(-5deg); }
+    .brand-name { font: 700 24px var(--serif); letter-spacing: 0; }
+    .tagline { margin: 9px 12px 37px; color: var(--muted); font-size: 11px; letter-spacing: .04em; }
+    .nav-label { padding: 0 12px; margin-bottom: 10px; color: #969a91; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .12em; }
+    .nav-list { display: grid; gap: 5px; }
+    .nav-link { width: 100%; border: 0; background: transparent; display: flex; align-items: center; gap: 13px; padding: 12px; border-radius: 8px; color: #62675f; text-align: left; cursor: pointer; transition: background .18s, color .18s, transform .18s; }
+    .nav-link:hover { color: var(--ink); background: #e9ecdf; transform: translateX(2px); }
+    .nav-link.active { background: var(--green); color: var(--ink); font-weight: 700; }
+    .nav-icon { width: 20px; font-size: 18px; text-align: center; line-height: 1; }
+    .nav-count { margin-left: auto; padding: 3px 7px; border-radius: 20px; background: var(--orange); color: white; font-size: 10px; font-weight: 700; }
+    .side-bottom { margin-top: auto; }
+    .profile-mini { display: flex; align-items: center; gap: 10px; width: calc(100% - 6px); border: 0; border-top: 1px solid var(--line); padding: 14px 9px; margin: 0 3px 12px; background: transparent; text-align: left; cursor: pointer; }
+    .profile-mini:hover { background: #e9ecdf; }
+    .profile-copy { min-width: 0; }
+    .profile-copy strong, .profile-copy small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .profile-copy strong { font-size: 12px; }
+    .profile-copy small { margin-top: 3px; color: var(--muted); font-size: 11px; }
+    .avatar { width: 40px; height: 40px; flex: 0 0 auto; display: grid; place-items: center; overflow: hidden; border-radius: 50%; background: #e6c7a4; color: #493c31; font-weight: 700; }
+    .avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .avatar.small { width: 32px; height: 32px; font-size: 11px; }
+    .avatar.tiny { width: 24px; height: 24px; font-size: 9px; }
+    .legal-links { display: flex; gap: 12px; padding: 0 12px; color: var(--muted); font-size: 10px; }
+    .legal-links button { border: 0; padding: 0; background: none; color: inherit; cursor: pointer; }
+    .legal-links button:hover { color: var(--ink); text-decoration: underline; }
+
+    main { min-width: 0; padding: 27px 0 64px; }
+    .topbar { min-height: 42px; display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 25px; }
+    .date-label { color: var(--muted); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .12em; }
+    .search-box { width: min(240px, 55%); height: 38px; display: flex; align-items: center; gap: 8px; padding: 0 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--muted); }
+    .search-box span { font-size: 16px; }
+    .search-box input { width: 100%; min-width: 0; border: 0; outline: 0; background: transparent; color: var(--ink); font-size: 12px; }
+    .search-box input::placeholder { color: #a1a49d; }
+    .heading-row { display: flex; justify-content: space-between; align-items: end; gap: 16px; margin-bottom: 19px; }
+    h1 { margin: 0; font: 400 34px/1.08 var(--serif); letter-spacing: 0; }
+    .heading-note { margin: 7px 0 0; color: var(--muted); font-size: 12px; }
+    .compose-cta { width: 42px; height: 42px; flex: 0 0 auto; border: 0; border-radius: 50%; background: var(--ink); color: white; font-size: 23px; cursor: pointer; transition: transform .2s, background .2s; }
+    .compose-cta:hover { background: var(--green-dark); transform: rotate(90deg); }
+    .stories { display: flex; gap: 16px; overflow-x: auto; padding: 4px 2px 18px; scrollbar-width: none; }
+    .stories::-webkit-scrollbar { display: none; }
+    .story { width: 58px; flex: 0 0 58px; border: 0; padding: 0; background: transparent; text-align: center; cursor: pointer; }
+    .story-ring { width: 54px; height: 54px; display: grid; place-items: center; margin: auto auto 7px; border-radius: 50%; background: conic-gradient(from 210deg, var(--orange), #f3be45, var(--green), var(--orange)); padding: 2px; transition: transform .2s; }
+    .story:hover .story-ring { transform: scale(1.07) rotate(-5deg); }
+    .story-ring .avatar { width: 50px; height: 50px; border: 2px solid var(--paper); }
+    .story-name { display: block; overflow: hidden; color: #5f645c; font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+    .story.add .story-ring { background: var(--surface); border: 1px dashed #b7bdb0; padding: 0; color: var(--green-dark); font-size: 22px; }
+    .feed-tabs { display: flex; gap: 22px; border-bottom: 1px solid var(--line); margin: 1px 0 15px; }
+    .feed-tab { position: relative; border: 0; padding: 0 1px 11px; background: transparent; color: var(--muted); font-size: 12px; cursor: pointer; }
+    .feed-tab.active { color: var(--ink); font-weight: 700; }
+    .feed-tab.active::after { position: absolute; right: 0; bottom: -1px; left: 0; height: 2px; background: var(--orange); content: ''; }
+    .composer { display: flex; gap: 12px; padding: 15px; margin-bottom: 15px; border: 1px solid var(--line); border-radius: 9px; background: var(--surface); }
+    .composer-main { min-width: 0; flex: 1; }
+    .composer textarea { width: 100%; min-height: 43px; resize: vertical; border: 0; outline: 0; padding: 7px 0; background: transparent; color: var(--ink); font: 14px/1.45 var(--sans); }
+    .composer textarea::placeholder { color: #8e9389; }
+    .composer-bottom { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding-top: 8px; border-top: 1px solid #f0f1ec; }
+    .composer-hint { color: #9a9e96; font-size: 10px; }
+    .primary-btn { border: 0; border-radius: 6px; padding: 8px 14px; background: var(--green); color: var(--ink); font-size: 11px; font-weight: 700; cursor: pointer; transition: background .15s, transform .15s; }
+    .primary-btn:hover { background: #b7e651; transform: translateY(-1px); }
+    .feed { display: grid; gap: 13px; }
+    .post { overflow: hidden; border: 1px solid var(--line); border-radius: 9px; background: var(--surface); animation: appear .38s both; }
+    @keyframes appear { from { opacity: 0; transform: translateY(9px); } to { opacity: 1; transform: translateY(0); } }
+    .post-head { display: flex; align-items: center; gap: 10px; padding: 15px 16px 9px; }
+    .post-author { min-width: 0; flex: 1; }
+    .post-author strong { display: inline-block; max-width: 100%; overflow: hidden; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+    .verified { color: var(--blue); font-size: 11px; }
+    .post-meta { margin-top: 3px; color: var(--muted); font-size: 10px; }
+    .more-btn { width: 30px; height: 30px; border: 0; border-radius: 50%; background: transparent; color: var(--muted); font-size: 18px; cursor: pointer; }
+    .more-btn:hover { background: var(--paper); color: var(--ink); }
+    .post-copy { margin: 0; padding: 2px 16px 12px; font-size: 12px; line-height: 1.6; }
+    .post-copy a { color: var(--green-dark); font-weight: 700; text-decoration: none; }
+    .post-image { display: block; width: 100%; max-height: 380px; object-fit: cover; background: #d9ddce; }
+    .post-image.landscape { aspect-ratio: 1.65 / 1; }
+    .post-image.portrait { aspect-ratio: 1.55 / 1; }
+    .post-image.square { aspect-ratio: 1.75 / 1; }
+    .post-image-note { padding: 8px 16px 2px; color: var(--muted); font-size: 10px; }
+    .post-actions { display: flex; align-items: center; gap: 17px; padding: 11px 16px 13px; }
+    .action-btn { display: inline-flex; align-items: center; gap: 6px; border: 0; padding: 0; background: transparent; color: #73786f; font-size: 11px; cursor: pointer; }
+    .action-btn .action-icon { font-size: 17px; line-height: 1; }
+    .action-btn:hover { color: var(--ink); }
+    .action-btn.liked { color: var(--orange); }
+    .action-btn.saved { color: var(--green-dark); }
+    .action-btn.save { margin-left: auto; }
+    .comment-area { display: none; padding: 0 16px 14px; }
+    .comment-area.open { display: block; }
+    .comments { display: grid; gap: 8px; margin-bottom: 10px; }
+    .comment { color: #52574f; font-size: 11px; line-height: 1.5; }
+    .comment strong { color: var(--ink); }
+    .comment-form { display: flex; gap: 8px; }
+    .comment-form input { flex: 1; min-width: 0; border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; background: var(--paper); font-size: 11px; }
+    .comment-form button { border: 0; background: transparent; color: var(--green-dark); font-size: 11px; font-weight: 700; cursor: pointer; }
+    .empty-state { padding: 38px 20px; color: var(--muted); text-align: center; }
+    .empty-state strong { display: block; margin-bottom: 7px; color: var(--ink); font: 22px var(--serif); }
+    .right-rail { min-width: 0; padding: 30px 0 50px; }
+    .rail-date { display: flex; justify-content: flex-end; align-items: center; gap: 8px; margin-bottom: 35px; color: var(--muted); font-size: 11px; }
+    .online-dot { width: 7px; height: 7px; border-radius: 50%; background: #69b959; box-shadow: 0 0 0 3px #e4f0d9; }
+    .rail-section { margin-bottom: 31px; }
+    .rail-heading { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 14px; }
+    .rail-heading h2 { margin: 0; font: 400 20px var(--serif); }
+    .rail-heading button { border: 0; padding: 0; background: none; color: var(--green-dark); font-size: 10px; font-weight: 700; cursor: pointer; }
+    .prompt { position: relative; overflow: hidden; padding: 17px; border-radius: 9px; background: var(--green); }
+    .prompt::after { position: absolute; right: -20px; bottom: -31px; width: 110px; height: 110px; border: 1px solid #759e3d55; border-radius: 50%; box-shadow: 0 0 0 12px #759e3d17, 0 0 0 26px #759e3d12; content: ''; }
+    .prompt-label { color: #536b3b; font-size: 9px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+    .prompt p { max-width: 205px; margin: 12px 0 17px; font: 21px/1.19 var(--serif); }
+    .prompt button { position: relative; z-index: 1; border: 0; border-bottom: 1px solid #4d6234; padding: 0 0 3px; background: none; color: #354726; font-size: 10px; font-weight: 700; cursor: pointer; }
+    .friend-list { display: grid; gap: 14px; }
+    .friend { display: flex; align-items: center; gap: 9px; }
+    .friend-info { min-width: 0; flex: 1; }
+    .friend-info strong, .friend-info span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .friend-info strong { font-size: 11px; }
+    .friend-info span { margin-top: 3px; color: var(--muted); font-size: 9px; }
+    .follow-btn { border: 1px solid var(--line); border-radius: 5px; padding: 5px 8px; background: transparent; color: #575c54; font-size: 9px; cursor: pointer; }
+    .follow-btn.following { border-color: #d5e7bb; background: #eaf4dc; color: var(--green-dark); }
+    .trend-list { display: grid; gap: 13px; }
+    .trend { padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+    .trend:last-child { padding-bottom: 0; border-bottom: 0; }
+    .trend span { display: block; color: var(--muted); font-size: 9px; }
+    .trend strong { display: block; margin: 4px 0 3px; font-size: 11px; }
+    .trend small { color: #92978e; font-size: 9px; }
+    .rail-foot { padding-top: 14px; border-top: 1px solid var(--line); color: #92978e; font-size: 9px; line-height: 1.8; }
+    .account-switch { border: 1px solid var(--line); border-radius: 6px; padding: 7px 9px; background: var(--surface); color: var(--muted); font-size: 10px; cursor: pointer; }
+    .account-switch:hover { border-color: #c7d4b2; color: var(--green-dark); }
+    .admin-shell { display: grid; gap: 22px; padding-bottom: 30px; }
+    .admin-welcome { display: flex; justify-content: space-between; align-items: center; gap: 15px; padding: 20px; border-radius: 9px; background: var(--ink); color: white; }
+    .admin-welcome p { margin: 6px 0 0; color: #c3c8bd; font-size: 11px; }
+    .admin-welcome h2 { margin: 0; font: 25px var(--serif); }
+    .admin-tag { border: 1px solid #ffffff50; border-radius: 20px; padding: 6px 10px; color: var(--green); font-size: 10px; }
+    .admin-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+    .admin-stat { padding: 15px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+    .admin-stat span { display: block; color: var(--muted); font-size: 10px; }
+    .admin-stat strong { display: block; margin-top: 9px; font: 25px var(--serif); }
+    .admin-section { overflow: hidden; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+    .admin-section-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 15px 16px; border-bottom: 1px solid var(--line); }
+    .admin-section-head h3 { margin: 0; font: 20px var(--serif); }
+    .admin-section-head span { color: var(--muted); font-size: 10px; }
+    .account-table { width: 100%; border-collapse: collapse; text-align: left; }
+    .account-table th { padding: 9px 12px; background: #f8f9f4; color: var(--muted); font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
+    .account-table td { padding: 11px 12px; border-top: 1px solid #eff0ea; font-size: 10px; }
+    .account-table td:first-child { font-weight: 700; }
+    .role-pill, .status-pill { display: inline-block; border-radius: 20px; padding: 4px 7px; background: #eef1e8; color: #59624f; font-size: 9px; white-space: nowrap; }
+    .role-pill.admin { background: #e5eaff; color: #3151bf; }
+    .status-pill.inactive { background: #fbe7df; color: #974327; }
+    .admin-action { border: 1px solid var(--line); border-radius: 5px; padding: 6px 8px; background: white; font-size: 9px; cursor: pointer; }
+    .admin-action:hover { border-color: var(--orange); color: #9a3e26; }
+    .report-list { display: grid; }
+    .report-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 16px; border-top: 1px solid #eff0ea; }
+    .report-row:first-child { border-top: 0; }
+    .report-row strong, .report-row span { display: block; }
+    .report-row strong { font-size: 10px; }
+    .report-row span { margin-top: 4px; color: var(--muted); font-size: 9px; }
+    .account-modal-list { display: grid; gap: 9px; }
+    .account-option { display: flex; align-items: center; gap: 11px; width: 100%; padding: 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); text-align: left; cursor: pointer; }
+    .account-option:hover { border-color: #b9cf8c; background: #f7faef; }
+    .account-option strong, .account-option small { display: block; }
+    .account-option strong { font-size: 12px; }
+    .account-option small { margin-top: 4px; color: var(--muted); font-size: 10px; }
+    .topbar-tools { display: flex; align-items: center; gap: 8px; }
+    .language-select, .theme-toggle, .logout-button { min-height: 36px; border: 1px solid var(--line); border-radius: 7px; background: var(--surface); color: var(--ink); cursor: pointer; }
+    .language-select { padding: 0 8px; font-size: 11px; }
+    .theme-toggle { width: 38px; font-size: 17px; }
+    .logout-button { padding: 0 10px; font-size: 10px; }
+    .auth-shell { min-height: 100vh; display: grid; grid-template-columns: minmax(250px, .9fr) minmax(340px, 470px); align-items: center; justify-content: center; gap: clamp(36px, 8vw, 120px); padding: 48px 7vw; background: var(--paper); color: var(--ink); }
+    .auth-intro { max-width: 480px; }
+    .auth-brand { display: inline-flex; align-items: center; gap: 12px; margin-bottom: 35px; font: 700 28px var(--serif); }
+    .auth-brand .brand-mark { width: 42px; height: 42px; font-size: 25px; }
+    .auth-intro h1 { max-width: 440px; font-size: clamp(42px, 5vw, 66px); line-height: .99; }
+    .auth-intro p { max-width: 370px; margin-top: 18px; color: var(--muted); font-size: 14px; line-height: 1.7; }
+    .auth-panel { padding: clamp(24px, 4vw, 40px); border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+    .auth-panel h2 { margin: 0 0 7px; font: 27px var(--serif); }
+    .auth-subtitle { margin: 0 0 22px; color: var(--muted); font-size: 11px; }
+    .auth-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-bottom: 20px; padding: 4px; border-radius: 7px; background: var(--paper); }
+    .auth-tab { border: 0; border-radius: 5px; padding: 9px; background: transparent; color: var(--muted); font-size: 11px; cursor: pointer; }
+    .auth-tab.active { background: var(--surface); color: var(--ink); box-shadow: 0 1px 3px #00000016; font-weight: 700; }
+    .auth-form { display: grid; gap: 13px; }
+    .auth-field { display: grid; gap: 6px; color: var(--ink); font-size: 10px; font-weight: 700; }
+    .auth-field input { width: 100%; min-height: 41px; border: 1px solid var(--line); border-radius: 6px; padding: 0 11px; background: var(--paper); color: var(--ink); font-size: 12px; }
+    .auth-submit { min-height: 42px; margin-top: 5px; }
+    .auth-feedback { min-height: 16px; margin: 0; color: #b54d32; font-size: 10px; }
+    .auth-legal { margin: 15px 0 0; color: var(--muted); font-size: 9px; line-height: 1.6; }
+    .auth-legal button { border: 0; padding: 0; background: transparent; color: var(--green-dark); text-decoration: underline; cursor: pointer; }
+    .auth-top-tools { position: absolute; top: 18px; right: 22px; display: flex; gap: 8px; }
+    html[data-theme="dark"] .nav-link:hover, html[data-theme="dark"] .profile-mini:hover, html[data-theme="dark"] .more-btn:hover { background: #303a31; }
+    html[data-theme="dark"] .composer-bottom { border-color: var(--line); }
+    html[data-theme="dark"] .comment-form input { background: #1b211c; color: var(--ink); }
+    html[data-theme="dark"] .account-table th { background: #2b342c; }
+    html[data-theme="dark"] .account-table td { border-color: var(--line); }
+    html[data-theme="dark"] .role-pill, html[data-theme="dark"] .status-pill { background: #354238; color: #d5e1ca; }
+    html[data-theme="dark"] .role-pill.admin { background: #303c62; color: #d4dcff; }
+    html[data-theme="dark"] .status-pill.inactive { background: #5a372b; color: #ffd1be; }
+    html[data-theme="dark"] .admin-action { border-color: var(--line); background: #293129; color: var(--ink); }
+    html[data-theme="dark"] .prompt-label, html[data-theme="dark"] .prompt button { color: #27351d; }
+    html[data-theme="dark"] .prompt button { border-color: #40572c; }
+
+    .toast { position: fixed; z-index: 20; right: 24px; bottom: 24px; max-width: min(360px, calc(100vw - 32px)); padding: 12px 16px; border-radius: 7px; background: var(--ink); color: white; font-size: 12px; box-shadow: 0 8px 28px #20231f26; opacity: 0; transform: translateY(10px); pointer-events: none; transition: .2s; }
+    .toast.visible { opacity: 1; transform: translateY(0); }
+    .modal-backdrop { position: fixed; z-index: 30; inset: 0; display: none; place-items: center; padding: 20px; background: #1b1e19a8; }
+    .modal-backdrop.open { display: grid; animation: appear .2s both; }
+    .modal { position: relative; width: min(570px, 100%); max-height: min(80vh, 720px); overflow: auto; padding: 30px; border-radius: 10px; background: var(--surface); }
+    .modal h2 { margin: 0 40px 20px 0; font: 32px var(--serif); }
+    .modal h3 { margin: 22px 0 6px; font-size: 13px; }
+    .modal p { color: #545950; font-size: 12px; line-height: 1.75; }
+    .modal-close { position: absolute; top: 15px; right: 15px; width: 34px; height: 34px; border: 0; border-radius: 50%; background: var(--paper); font-size: 19px; cursor: pointer; }
+    .mobile-nav { display: none; }
+    .mobile-legal { display: none; }
+    @media (max-width: 1120px) {
+      .app { grid-template-columns: 190px minmax(400px, 1fr); gap: 28px; padding: 0 24px; }
+      .right-rail { display: none; }
+    }
+    @media (max-width: 700px) {
+      body { padding-bottom: 66px; }
+      .app { display: block; padding: 0 16px; }
+      .sidebar { position: static; display: block; height: auto; padding: 16px 0 0; }
+      .brand { padding: 0; }
+      .brand-mark { width: 30px; height: 30px; font-size: 18px; }
+      .brand-name { font-size: 22px; }
+      .tagline, .sidebar .nav-label, .sidebar .nav-list, .side-bottom { display: none; }
+      main { padding: 18px 0 25px; }
+      .topbar { margin-bottom: 22px; }
+      h1 { font-size: 30px; }
+      .heading-row { margin-bottom: 15px; }
+      .stories { gap: 12px; margin-right: -16px; padding-bottom: 15px; }
+      .post-head { padding: 13px 13px 8px; }
+      .post-copy { padding-right: 13px; padding-left: 13px; }
+      .post-actions { padding-right: 13px; padding-left: 13px; }
+      .mobile-nav { position: fixed; z-index: 10; right: 0; bottom: 0; left: 0; display: flex; justify-content: space-around; align-items: center; height: 62px; padding-bottom: env(safe-area-inset-bottom); border-top: 1px solid var(--line); background: #fffefaed; backdrop-filter: blur(14px); }
+      .mobile-nav button { width: 48px; height: 46px; border: 0; border-radius: 8px; background: transparent; color: #72776e; font-size: 21px; cursor: pointer; }
+      .mobile-nav button.active { background: var(--green); color: var(--ink); }
+      .mobile-legal { display: flex; justify-content: center; gap: 18px; padding: 0 0 18px; color: var(--muted); font-size: 10px; }
+      .mobile-legal button { border: 0; padding: 4px; background: transparent; color: inherit; cursor: pointer; }
+      .modal { padding: 25px 21px; }
+      .auth-shell { min-height: 100svh; grid-template-columns: 1fr; align-content: center; gap: 20px; padding: 70px 18px 30px; }
+      .auth-intro { max-width: 520px; }
+      .auth-brand { margin-bottom: 17px; font-size: 23px; }
+      .auth-intro h1 { font-size: 38px; }
+      .auth-intro p { margin: 10px 0 0; font-size: 12px; }
+      .auth-panel { padding: 22px; }
+      .auth-top-tools { top: 12px; right: 14px; }
+      .topbar-tools { gap: 5px; }
+      .logout-button { padding: 0 7px; }
+      .topbar { gap: 5px; }
+      .date-label { display: none; }
+      .search-box { width: auto; min-width: 80px; flex: 1; }
+    }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; } }
+  </style>
+</head>
+<body>
+  <section class="auth-shell" id="auth-shell" hidden>
+    <div class="auth-top-tools">
+      <select class="language-select" id="language-select" aria-label="Langue"><option value="fr">FR</option><option value="en">EN</option></select>
+      <button class="theme-toggle" data-theme-toggle aria-label="Activer le mode sombre" title="Activer le mode sombre">☾</button>
+    </div>
+    <div class="auth-intro"><div class="auth-brand"><span class="brand-mark">m</span>mosaïque</div><h1 data-i18n="intro-title">Les petites choses nous rassemblent.</h1><p data-i18n="intro-copy">Retrouvez votre communauté, partagez vos idées et gardez une place pour les belles découvertes.</p></div>
+    <section class="auth-panel" aria-labelledby="auth-title">
+      <h2 id="auth-title" data-i18n="login-title">Ravi de vous revoir</h2>
+      <p class="auth-subtitle" data-i18n="login-subtitle">Connectez-vous pour retrouver votre fil.</p>
+      <div class="auth-tabs" role="tablist" aria-label="Accès au compte"><button class="auth-tab active" type="button" data-auth-mode="login" data-i18n="login">Se connecter</button><button class="auth-tab" type="button" data-auth-mode="register" data-i18n="register">Créer un compte</button></div>
+      <form class="auth-form" id="auth-form">
+        <label class="auth-field" id="name-field" hidden><span data-i18n="display-name">Nom affiché</span><input id="auth-name" name="displayName" maxlength="80" autocomplete="name"></label>
+        <label class="auth-field"><span data-i18n="email">Adresse e-mail</span><input id="auth-email" name="email" type="email" maxlength="254" autocomplete="email" required></label>
+        <label class="auth-field"><span data-i18n="password">Mot de passe</span><input id="auth-password" name="password" type="password" minlength="12" maxlength="72" autocomplete="current-password" required></label>
+        <label class="auth-field" id="confirm-field" hidden><span data-i18n="confirm-password">Confirmer le mot de passe</span><input id="auth-confirm" type="password" minlength="12" maxlength="72" autocomplete="new-password"></label>
+        <button class="primary-btn auth-submit" id="auth-submit" type="submit" data-i18n="login">Se connecter</button>
+        <p class="auth-feedback" id="auth-feedback" role="alert"></p>
+      </form>
+      <p class="auth-legal"><span data-i18n="legal-consent">En continuant, vous acceptez nos</span> <button type="button" data-legal="terms" data-i18n="terms-link">conditions d’utilisation</button> <span data-i18n="and">et notre</span> <button type="button" data-legal="privacy" data-i18n="privacy-link">politique de confidentialité</button>.</p>
+    </section>
+  </section>
+  <div class="app" id="app-shell" hidden>
+    <aside class="sidebar" aria-label="Navigation principale">
+      <a class="brand" href="#fil" aria-label="Mosaïque, accueil">
+        <span class="brand-mark">m</span><span class="brand-name">mosaïque</span>
+      </a>
+      <p class="tagline">Les petites choses nous rassemblent.</p>
+      <div class="nav-label">Espace perso</div>
+      <nav class="nav-list">
+        <button class="nav-link active" data-view="feed"><span class="nav-icon">⌂</span>Mon fil</button>
+        <button class="nav-link" data-view="explore"><span class="nav-icon">⌕</span>Découvrir</button>
+        <button class="nav-link" data-view="messages"><span class="nav-icon">▱</span>Messages<span class="nav-count">2</span></button>
+        <button class="nav-link" data-view="notifications"><span class="nav-icon">♧</span>Notifications</button>
+        <button class="nav-link" data-view="saved"><span class="nav-icon">♧</span>Enregistrés</button>
+        <button class="nav-link" data-view="admin" data-admin-only hidden><span class="nav-icon">⚙</span>Administration</button>
+      </nav>
+      <div class="side-bottom">
+        <div class="profile-mini" id="profile-switch" aria-label="Compte connecté">
+          <div class="avatar small"><img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=96&h=96&q=80" alt=""></div>
+          <div class="profile-copy"><strong id="profile-name"></strong><small id="profile-email"></small></div>
+          <span aria-hidden="true">···</span>
+        </div>
+        <div class="legal-links"><button data-legal="privacy">Confidentialité</button><button data-legal="terms">Conditions</button></div>
+      </div>
+    </aside>
+
+    <main id="main-content">
+      <div class="topbar">
+        <span class="date-label">Mardi 29 septembre</span>
+        <label class="search-box"><span aria-hidden="true">⌕</span><input id="search" type="search" placeholder="Rechercher dans le fil" aria-label="Rechercher dans le fil"></label>
+        <div class="topbar-tools">
+          <select class="language-select" id="language-select-app" aria-label="Langue"><option value="fr">FR</option><option value="en">EN</option></select>
+          <button class="theme-toggle" data-theme-toggle aria-label="Activer le mode sombre" title="Activer le mode sombre">☾</button>
+          <button class="logout-button" id="logout-button" data-i18n="logout">Déconnexion</button>
+        </div>
+      </div>
+      <div class="heading-row">
+        <div><h1 id="page-title">Le fil du jour</h1><p class="heading-note" id="page-note">Un peu de beau, dans votre journée.</p></div>
+        <button class="compose-cta" id="focus-compose" aria-label="Écrire une publication" title="Écrire une publication">＋</button>
+      </div>
+      <section class="stories" aria-label="Stories de votre communauté">
+        <button class="story add" data-story="Votre story"><span class="story-ring">＋</span><span class="story-name">Votre story</span></button>
+        <button class="story" data-story="Lina"><span class="story-ring"><span class="avatar"><img src="https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&w=96&h=96&q=80" alt=""></span></span><span class="story-name">Lina</span></button>
+        <button class="story" data-story="Hugo"><span class="story-ring"><span class="avatar"><img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=96&h=96&q=80" alt=""></span></span><span class="story-name">Hugo</span></button>
+        <button class="story" data-story="Maya"><span class="story-ring"><span class="avatar"><img src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=96&h=96&q=80" alt=""></span></span><span class="story-name">Maya</span></button>
+        <button class="story" data-story="Noé"><span class="story-ring"><span class="avatar"><img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=96&h=96&q=80" alt=""></span></span><span class="story-name">Noé</span></button>
+        <button class="story" data-story="Sarah"><span class="story-ring"><span class="avatar"><img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=96&h=96&q=80" alt=""></span></span><span class="story-name">Sarah</span></button>
+      </section>
+      <div class="feed-tabs" role="tablist" aria-label="Trier le fil">
+        <button class="feed-tab active" role="tab" aria-selected="true" data-filter="all">Pour vous</button>
+        <button class="feed-tab" role="tab" aria-selected="false" data-filter="following">Abonnements</button>
+      </div>
+      <form class="composer" id="composer">
+        <div class="avatar"><img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=96&h=96&q=80" alt=""></div>
+        <div class="composer-main">
+          <textarea id="post-text" maxlength="500" placeholder="Qu'avez-vous envie de partager ?" aria-label="Votre publication"></textarea>
+          <div class="composer-bottom"><span class="composer-hint">Une pensée, une découverte, un instant.</span><button class="primary-btn" type="submit">Publier</button></div>
+        </div>
+      </form>
+      <section class="feed" id="feed" aria-live="polite">
+        <article class="post" data-following="true" data-author="Lina Benali" data-search="lina benali jardin partagé tomates récolte quartier paris nature">
+          <header class="post-head">
+            <div class="avatar"><img src="https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&w=96&h=96&q=80" alt=""></div>
+            <div class="post-author"><strong>Lina Benali <span class="verified" aria-label="Compte vérifié">●</span></strong><div class="post-meta">Il y a 18 min · Paris, 11e</div></div>
+            <button class="more-btn" aria-label="Plus d'options">···</button>
+          </header>
+          <p class="post-copy">Première récolte au jardin partagé. Les tomates ont pris leur temps, mais franchement, ça valait l'attente. 🍅<br>On recommence samedi ?</p>
+          <img class="post-image landscape" src="https://images.unsplash.com/photo-1592841200221-a6898f307baa?auto=format&fit=crop&w=1200&h=760&q=85" alt="Tomates mûres dans un jardin ensoleillé" loading="lazy">
+          <div class="post-actions">
+            <button class="action-btn like" aria-label="Aimer cette publication" aria-pressed="false"><span class="action-icon">♡</span><span class="count">24</span></button>
+            <button class="action-btn comment-toggle" aria-label="Commenter cette publication"><span class="action-icon">◯</span><span class="count">6</span></button>
+            <button class="action-btn share" aria-label="Partager cette publication"><span class="action-icon">↗</span><span>Partager</span></button>
+            <button class="action-btn save" aria-label="Enregistrer cette publication" aria-pressed="false"><span class="action-icon">♧</span></button>
+          </div>
+          <div class="comment-area"><div class="comments"><div class="comment"><strong>Hugo Martin</strong> On apporte le pain !</div></div><form class="comment-form"><input aria-label="Ajouter un commentaire" placeholder="Écrire un commentaire…"><button type="submit">Envoyer</button></form></div>
+        </article>
+        <article class="post" data-following="false" data-author="Hugo Martin" data-search="hugo martin balade forêt fontainebleau samedi marche automne">
+          <header class="post-head">
+            <div class="avatar" style="background:#c0d4c8"><img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=96&h=96&q=80" alt=""></div>
+            <div class="post-author"><strong>Hugo Martin</strong><div class="post-meta">Il y a 42 min · Fontainebleau</div></div>
+            <button class="more-btn" aria-label="Plus d'options">···</button>
+          </header>
+          <p class="post-copy">Parti pour une heure, rentré avec des chaussures pleines de feuilles et la tête bien rangée. La forêt sait faire ça. 🍂</p>
+          <img class="post-image portrait" src="https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=1200&h=760&q=85" alt="Chemin de forêt baigné de lumière" loading="lazy">
+          <div class="post-actions">
+            <button class="action-btn like" aria-label="Aimer cette publication" aria-pressed="false"><span class="action-icon">♡</span><span class="count">41</span></button>
+            <button class="action-btn comment-toggle" aria-label="Commenter cette publication"><span class="action-icon">◯</span><span class="count">9</span></button>
+            <button class="action-btn share" aria-label="Partager cette publication"><span class="action-icon">↗</span><span>Partager</span></button>
+            <button class="action-btn save" aria-label="Enregistrer cette publication" aria-pressed="false"><span class="action-icon">♧</span></button>
+          </div>
+          <div class="comment-area"><div class="comments"></div><form class="comment-form"><input aria-label="Ajouter un commentaire" placeholder="Écrire un commentaire…"><button type="submit">Envoyer</button></form></div>
+        </article>
+        <article class="post" data-following="true" data-author="Maya Diallo" data-search="maya diallo atelier céramique poterie fait main argile couleurs">
+          <header class="post-head">
+            <div class="avatar" style="background:#e1c5bd"><img src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=96&h=96&q=80" alt=""></div>
+            <div class="post-author"><strong>Maya Diallo</strong><div class="post-meta">Il y a 1 h · Lyon, Croix-Rousse</div></div>
+            <button class="more-btn" aria-label="Plus d'options">···</button>
+          </header>
+          <p class="post-copy">Un dimanche entier à l'atelier, les mains dans l'argile et la radio en fond. Voilà les tasses qui en sont sorties. Aucune n'est droite, toutes sont à moi.</p>
+          <img class="post-image square" src="https://images.unsplash.com/photo-1493106641515-6b5631de4bb9?auto=format&fit=crop&w=1200&h=760&q=85" alt="Objets en céramique faits à la main" loading="lazy">
+          <div class="post-actions">
+            <button class="action-btn like" aria-label="Aimer cette publication" aria-pressed="false"><span class="action-icon">♡</span><span class="count">58</span></button>
+            <button class="action-btn comment-toggle" aria-label="Commenter cette publication"><span class="action-icon">◯</span><span class="count">12</span></button>
+            <button class="action-btn share" aria-label="Partager cette publication"><span class="action-icon">↗</span><span>Partager</span></button>
+            <button class="action-btn save" aria-label="Enregistrer cette publication" aria-pressed="false"><span class="action-icon">♧</span></button>
+          </div>
+          <div class="comment-area"><div class="comments"></div><form class="comment-form"><input aria-label="Ajouter un commentaire" placeholder="Écrire un commentaire…"><button type="submit">Envoyer</button></form></div>
+        </article>
+      </section>
+      <section class="admin-shell" id="admin-dashboard" hidden aria-label="Administration">
+        <div class="admin-welcome"><div><h2>Bonjour, <span id="admin-name">administration</span></h2><p>Vue d’ensemble de la communauté Mosaïque.</p></div><span class="admin-tag">Accès administrateur</span></div>
+        <div class="admin-stats" id="admin-stats"></div>
+        <section class="admin-section"><div class="admin-section-head"><h3>Comptes</h3><span id="account-total"></span></div><div id="account-table"></div></section>
+        <section class="admin-section"><div class="admin-section-head"><h3>À modérer</h3><span id="report-total">2 signalements</span></div><div class="report-list" id="report-list">
+          <div class="report-row"><div><strong>Publication signalée · « Vente de produits »</strong><span>Signalée par 3 personnes · il y a 12 min</span></div><button class="admin-action" data-moderate>Examiner</button></div>
+          <div class="report-row"><div><strong>Commentaire signalé · « Lien suspect »</strong><span>Signalé par 1 personne · il y a 35 min</span></div><button class="admin-action" data-moderate>Examiner</button></div>
+        </div></section>
+      </section>
+    </main>
+    <footer class="mobile-legal"><button data-legal="privacy">Confidentialité</button><button data-legal="terms">Conditions d'utilisation</button></footer>
+
+    <aside class="right-rail" aria-label="Suggestions et tendances">
+      <div class="rail-date"><span class="online-dot"></span> 1 248 personnes en ligne</div>
+      <section class="rail-section">
+        <div class="rail-heading"><h2>La question du jour</h2><button id="new-prompt">Une autre ↗</button></div>
+        <div class="prompt"><span class="prompt-label">Pour ouvrir la conversation</span><p id="prompt-text">Quel petit rituel rend vos matins meilleurs ?</p><button id="answer-prompt">J'y réponds →</button></div>
+      </section>
+      <section class="rail-section">
+        <div class="rail-heading"><h2>À rencontrer</h2><button id="all-friends">Voir tout</button></div>
+        <div class="friend-list">
+          <div class="friend"><div class="avatar small"><img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=96&h=96&q=80" alt=""></div><div class="friend-info"><strong>Sarah Petit</strong><span>Photographie & balades</span></div><button class="follow-btn">Suivre</button></div>
+          <div class="friend"><div class="avatar small" style="background:#d1c3a8"><img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=96&h=96&q=80" alt=""></div><div class="friend-info"><strong>Noé Laurent</strong><span>Musique indépendante</span></div><button class="follow-btn">Suivre</button></div>
+          <div class="friend"><div class="avatar small" style="background:#b6c7bb"><img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=96&h=96&q=80" alt=""></div><div class="friend-info"><strong>Émilie Robert</strong><span>Cuisine de saison</span></div><button class="follow-btn">Suivre</button></div>
+        </div>
+      </section>
+      <section class="rail-section">
+        <div class="rail-heading"><h2>Ça se raconte</h2></div>
+        <div class="trend-list">
+          <div class="trend"><span>À Paris · 326 publications</span><strong>#MonCoinDeRue</strong><small>Des détails qu'on ne remarque plus.</small></div>
+          <div class="trend"><span>Loisirs · 184 publications</span><strong>#FaitMainSansPression</strong><small>Apprendre en faisant, tout simplement.</small></div>
+          <div class="trend"><span>Nature · 91 publications</span><strong>#LaSaisonDesFeuilles</strong><small>Petites échappées de septembre.</small></div>
+        </div>
+      </section>
+      <div class="rail-foot">© 2026 Mosaïque · <button data-legal="privacy" style="border:0;background:none;padding:0;color:inherit;cursor:pointer">Confidentialité</button> · <button data-legal="terms" style="border:0;background:none;padding:0;color:inherit;cursor:pointer">Conditions d'utilisation</button><br>Fait avec attention, en France.</div>
+    </aside>
+  </div>
+
+  <nav class="mobile-nav" aria-label="Navigation mobile">
+    <button class="active" data-view="feed" aria-label="Mon fil">⌂</button><button data-view="explore" aria-label="Découvrir">⌕</button><button data-view="messages" aria-label="Messages">▱</button><button data-view="notifications" aria-label="Notifications">♧</button><button data-view="saved" aria-label="Enregistrés">♧</button><button data-view="admin" data-admin-only hidden aria-label="Administration">⚙</button>
+  </nav>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <div class="modal-backdrop" id="legal-modal" role="dialog" aria-modal="true" aria-labelledby="legal-title">
+    <section class="modal"><button class="modal-close" aria-label="Fermer">×</button><div id="legal-content"></div></section>
+  </div>
+
+  <script>
+    const feed = document.querySelector('#feed');
+    const searchInput = document.querySelector('#search');
+    const title = document.querySelector('#page-title');
+    const note = document.querySelector('#page-note');
+    const toast = document.querySelector('#toast');
+    const feedPosts = new Set(feed.querySelectorAll('.post'));
+    const originalTextNodes = new WeakMap();
+    let activeView = 'feed';
+    let activeFilter = 'all';
+    let currentAccount;
+    let csrfToken;
+    let authMode = 'login';
+    let language = localStorage.getItem('mosaique-language') || 'fr';
+    let toastTimer;
+
+    const uiEnglish = {
+      'Les petites choses nous rassemblent.': 'Small things bring us together.',
+      'Retrouvez votre communauté, partagez vos idées et gardez une place pour les belles découvertes.': 'Reconnect with your community, share your thoughts, and make room for good discoveries.',
+      'Ravi de vous revoir': 'Welcome back', 'Connectez-vous pour retrouver votre fil.': 'Sign in to catch up with your feed.',
+      'Se connecter': 'Sign in', 'Créer un compte': 'Create an account', 'Nom affiché': 'Display name',
+      'Adresse e-mail': 'Email address', 'Mot de passe': 'Password', 'Confirmer le mot de passe': 'Confirm password',
+      'En continuant, vous acceptez nos': 'By continuing, you agree to our', 'conditions d’utilisation': 'Terms of Use',
+      'et notre': 'and our', 'politique de confidentialité': 'Privacy Policy', 'Déconnexion': 'Sign out',
+      'Les petites choses nous rassemblent.': 'Small things bring us together.',
+      'Espace perso': 'Your space', 'Mon fil': 'My feed', 'Découvrir': 'Discover', 'Messages': 'Messages',
+      'Notifications': 'Notifications', 'Enregistrés': 'Saved', 'Administration': 'Admin',
+      'Le fil du jour': 'Today’s feed', 'Un peu de beau, dans votre journée.': 'A little beauty for your day.',
+      'À découvrir': 'Discover', 'Des voix et des idées hors de votre cercle.': 'Voices and ideas beyond your circle.',
+      'Vos messages': 'Your messages', 'Les conversations commencent par un bonjour.': 'Every conversation starts with hello.',
+      'Vos notifications': 'Your notifications', 'Les nouvelles de votre communauté.': 'News from your community.',
+      'À garder près de soi': 'Saved for later', 'Vos publications enregistrées.': 'Your saved posts.',
+      'Administration': 'Administration', 'Gestion de la communauté et des comptes.': 'Manage the community and its accounts.',
+      'Mardi 29 septembre': 'Tuesday, September 29', 'Rechercher dans le fil': 'Search the feed',
+      'Écrire une publication': 'Write a post', 'Stories de votre communauté': 'Stories from your community',
+      'Votre story': 'Your story', 'Trier le fil': 'Sort the feed', 'Pour vous': 'For you', 'Abonnements': 'Following',
+      'Qu’avez-vous envie de partager ?': 'What would you like to share?', "Qu'avez-vous envie de partager ?": 'What would you like to share?',
+      'Une pensée, une découverte, un instant.': 'A thought, a discovery, a moment.', 'Publier': 'Post',
+      'Il y a 18 min · Paris, 11e': '18 min ago · Paris, 11th', 'Il y a 42 min · Fontainebleau': '42 min ago · Fontainebleau',
+      'Il y a 1 h · Lyon, Croix-Rousse': '1 hr ago · Lyon, Croix-Rousse', 'Aimer cette publication': 'Like this post',
+      'Commenter cette publication': 'Comment on this post', 'Partager cette publication': 'Share this post',
+      'Partager': 'Share', 'Enregistrer cette publication': 'Save this post', 'Envoyer': 'Send',
+      'Écrire un commentaire…': 'Write a comment…', 'Plus d\'options': 'More options',
+      'La question du jour': 'Question of the day', 'Une autre': 'Another one', 'Pour ouvrir la conversation': 'A conversation starter',
+      'Quel petit rituel rend vos matins meilleurs ?': 'What little ritual makes your mornings better?',
+      "J'y réponds": 'I’ll answer', 'À rencontrer': 'People to meet', 'Voir tout': 'See all',
+      'Suivre': 'Follow', 'Suivi': 'Following', 'Photographie & balades': 'Photography & walks',
+      'Musique indépendante': 'Independent music', 'Cuisine de saison': 'Seasonal cooking',
+      'Ça se raconte': 'What people are talking about', 'Des détails qu’on ne remarque plus.': 'Details we no longer notice.',
+      "Des détails qu'on ne remarque plus.": 'Details we no longer notice.',
+      'Apprendre en faisant, tout simplement.': 'Learning by doing, simply.', 'Petites échappées de septembre.': 'Little September escapes.',
+      'Fait avec attention, en France.': 'Made with care in France.', 'Confidentialité': 'Privacy',
+      'Conditions': 'Terms', "Conditions d'utilisation": 'Terms of Use', 'Accès au compte': 'Account access',
+      'Bonjour, ': 'Hello, ', 'Accès administrateur': 'Administrator access', 'Comptes': 'Accounts',
+      'Comptes inscrits': 'Registered accounts', 'Comptes actifs': 'Active accounts', 'Comptes suspendus': 'Suspended accounts',
+      'Nom': 'Name', 'Identifiant': 'Email', 'Rôle': 'Role', 'État': 'Status', 'Action': 'Action',
+      'Administrateur': 'Administrator', 'Utilisateur': 'User', 'Actif': 'Active', 'Suspendu': 'Suspended',
+      'Protégé': 'Protected', 'Suspendre': 'Suspend', 'Réactiver': 'Reactivate', 'À modérer': 'Needs review',
+      'Examiner': 'Review', 'signalement': 'report', 'signalements': 'reports', 'Rien par ici, pour l’instant.': 'Nothing here just yet.',
+      'Essayez une autre recherche ou revenez bientôt.': 'Try another search or check back soon.',
+      'Choisir un compte': 'Choose an account', 'Fermer': 'Close', 'Les conversations commencent par un bonjour.': 'Every conversation starts with hello.'
+    };
+
+    function tr(french, english) { return language === 'en' ? english : french; }
+
+    function applyLanguage(nextLanguage) {
+      language = nextLanguage === 'en' ? 'en' : 'fr';
+      document.documentElement.lang = language;
+      document.title = language === 'en' ? 'Mosaïque — Today’s feed' : 'Mosaïque — Le fil du jour';
+      document.querySelectorAll('.language-select').forEach((select) => { select.value = language; });
+      const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+      while (walker.nextNode()) {
+        const node = walker.currentNode;
+        if (!originalTextNodes.has(node)) originalTextNodes.set(node, node.data);
+        const original = originalTextNodes.get(node);
+        const trimmed = original.trim();
+        if (language === 'en' && uiEnglish[trimmed]) node.data = original.replace(trimmed, uiEnglish[trimmed]);
+        else if (language === 'fr') node.data = original;
+      }
+      document.querySelector('#search').placeholder = tr('Rechercher dans le fil', 'Search the feed');
+      document.querySelector('#search').setAttribute('aria-label', tr('Rechercher dans le fil', 'Search the feed'));
+      document.querySelector('#post-text').placeholder = tr('Qu\'avez-vous envie de partager ?', 'What would you like to share?');
+      document.querySelector('#post-text').setAttribute('aria-label', tr('Votre publication', 'Your post'));
+      document.querySelectorAll('.theme-toggle').forEach((button) => {
+        const dark = document.documentElement.dataset.theme === 'dark';
+        button.textContent = dark ? '☀' : '☾';
+        button.title = tr(dark ? 'Activer le mode clair' : 'Activer le mode sombre', dark ? 'Switch to light mode' : 'Switch to dark mode');
+        button.setAttribute('aria-label', button.title);
+      });
+      localStorage.setItem('mosaique-language', language);
+    }
+
+    async function refreshCsrf() {
+      const response = await fetch('/api/auth/csrf', { credentials: 'same-origin' });
+      if (!response.ok) throw new Error('csrf_unavailable');
+      csrfToken = (await response.json()).token;
+    }
+
+    async function apiRequest(path, options = {}) {
+      const method = options.method || 'GET';
+      const headers = new Headers(options.headers || {});
+      if (options.body) headers.set('Content-Type', 'application/json');
+      if (!['GET', 'HEAD'].includes(method)) {
+        if (!csrfToken) await refreshCsrf();
+        headers.set('X-CSRF-Token', csrfToken);
+      }
+      const response = await fetch(`/api${path}`, { ...options, method, headers, credentials: 'same-origin' });
+      const payload = response.status === 204 ? null : await response.json().catch(() => null);
+      if (!response.ok) {
+        const error = new Error(payload?.error || 'request_failed');
+        error.status = response.status;
+        throw error;
+      }
+      return payload;
+    }
+
+    function showToast(message) {
+      toast.textContent = language === 'en' ? (uiEnglish[message] || message) : message;
+      toast.classList.add('visible');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove('visible'), 2600);
+    }
+
+    function updateFeed() {
+      const query = searchInput.value.trim().toLocaleLowerCase('fr');
+      let visibleCount = 0;
+      document.querySelectorAll('.post').forEach((post) => {
+        const searchable = `${post.dataset.search} ${post.textContent}`.toLocaleLowerCase('fr');
+        const matchesQuery = !query || searchable.includes(query);
+        const matchesFollowing = activeFilter !== 'following' || post.dataset.following === 'true';
+        const matchesView = activeView !== 'saved' || post.querySelector('.save').classList.contains('saved');
+        const matchesDiscovery = activeView !== 'explore' || post.dataset.following !== 'true';
+        const matches = matchesQuery && matchesFollowing && matchesView && matchesDiscovery;
+        post.hidden = !matches;
+        if (matches) visibleCount += 1;
+      });
+      let empty = feed.querySelector('.empty-state');
+      if (!visibleCount) {
+        if (!empty) {
+          empty = document.createElement('div');
+          empty.className = 'empty-state';
+          empty.innerHTML = `<strong>${tr('Rien par ici, pour l’instant.', 'Nothing here just yet.')}</strong>${tr('Essayez une autre recherche ou revenez bientôt.', 'Try another search or check back soon.')}`;
+          feed.append(empty);
+        }
+      } else if (empty) empty.remove();
+    }
+
+    async function renderAdminDashboard() {
+      const accounts = await apiRequest('/admin/accounts');
+      const activeCount = accounts.filter((account) => account.status === 'ACTIVE').length;
+      const pausedCount = accounts.length - activeCount;
+      document.querySelector('#admin-name').textContent = currentAccount.displayName;
+      document.querySelector('#admin-stats').innerHTML = `<div class="admin-stat"><span>${tr('Comptes inscrits', 'Registered accounts')}</span><strong>${accounts.length}</strong></div><div class="admin-stat"><span>${tr('Comptes actifs', 'Active accounts')}</span><strong>${activeCount}</strong></div><div class="admin-stat"><span>${tr('Comptes suspendus', 'Suspended accounts')}</span><strong>${pausedCount}</strong></div>`;
+      document.querySelector('#account-total').textContent = `${accounts.length} ${tr('comptes dans la base', 'accounts in database')}`;
+      const table = document.createElement('table');
+      table.className = 'account-table';
+      table.innerHTML = '<thead><tr><th>Nom</th><th>Identifiant</th><th>Rôle</th><th>État</th><th>Action</th></tr></thead>';
+      const body = document.createElement('tbody');
+      accounts.forEach((account) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `<td></td><td></td><td><span class="role-pill ${account.admin ? 'admin' : ''}">${account.admin ? tr('Administrateur', 'Administrator') : tr('Utilisateur', 'User')}</span></td><td><span class="status-pill ${account.status === 'ACTIVE' ? '' : 'inactive'}">${account.status === 'ACTIVE' ? tr('Actif', 'Active') : tr('Suspendu', 'Suspended')}</span></td><td></td>`;
+        row.cells[0].textContent = account.name;
+        row.cells[1].textContent = account.username;
+        if (!account.admin) {
+          const action = document.createElement('button');
+          action.className = 'admin-action';
+          action.dataset.accountStatus = account.id;
+          action.textContent = account.status === 'ACTIVE' ? tr('Suspendre', 'Suspend') : tr('Réactiver', 'Reactivate');
+          row.cells[4].append(action);
+        } else row.cells[4].textContent = 'Protégé';
+        body.append(row);
+      });
+      table.append(body);
+      document.querySelector('#account-table').replaceChildren(table);
+    }
+
+    async function setView(view) {
+      if (view === 'admin' && !currentAccount?.admin) {
+        showToast(tr('Cette page est réservée aux administrateurs.', 'This page is for administrators only.'));
+        return;
+      }
+      activeView = view;
+      const views = {
+        feed: [tr('Le fil du jour', 'Today’s feed'), tr('Un peu de beau, dans votre journée.', 'A little beauty for your day.')],
+        explore: [tr('À découvrir', 'Discover'), tr('Des voix et des idées hors de votre cercle.', 'Voices and ideas beyond your circle.')],
+        messages: [tr('Vos messages', 'Your messages'), tr('Les conversations commencent par un bonjour.', 'Every conversation starts with hello.')],
+        notifications: [tr('Vos notifications', 'Your notifications'), tr('Les nouvelles de votre communauté.', 'News from your community.')],
+        saved: [tr('À garder près de soi', 'Saved for later'), tr('Vos publications enregistrées.', 'Your saved posts.')],
+        admin: [tr('Administration', 'Administration'), tr('Gestion de la communauté et des comptes.', 'Manage the community and its accounts.')]
+      };
+      title.textContent = views[view][0];
+      note.textContent = views[view][1];
+      document.querySelectorAll('[data-view]').forEach((button) => button.classList.toggle('active', button.dataset.view === view));
+      const isAdmin = view === 'admin';
+      document.querySelector('#admin-dashboard').hidden = !isAdmin;
+      document.querySelector('.search-box').hidden = isAdmin;
+      document.querySelector('.heading-row').hidden = isAdmin;
+      document.querySelector('.stories').hidden = isAdmin || view === 'messages' || view === 'notifications';
+      document.querySelector('.composer').hidden = isAdmin || view === 'messages' || view === 'notifications';
+      document.querySelector('.feed-tabs').hidden = isAdmin || view !== 'feed';
+      document.querySelector('#feed').hidden = isAdmin;
+      if (isAdmin) {
+        feed.replaceChildren(...feedPosts);
+        try { await renderAdminDashboard(); }
+        catch { showToast(tr('Accès administrateur refusé.', 'Administrator access denied.')); await setView('feed'); }
+        return;
+      }
+      activeFilter = 'all';
+      document.querySelectorAll('.feed-tab').forEach((tab) => {
+        tab.classList.toggle('active', tab.dataset.filter === 'all');
+        tab.setAttribute('aria-selected', String(tab.dataset.filter === 'all'));
+      });
+      if (view === 'messages' || view === 'notifications') {
+        const messages = view === 'messages';
+        feed.innerHTML = messages
+          ? `<div class="empty-state"><strong>${tr('Vos conversations, au même endroit.', 'Your conversations, all in one place.')}</strong>${tr('La messagerie est prête à accueillir vos échanges.', 'Your inbox is ready for a conversation.')}</div><article class="post"><div class="post-head"><div class="avatar"><img src="https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&w=96&h=96&q=80" alt=""></div><div class="post-author"><strong>Lina Benali</strong><div class="post-meta">${tr('Vous a écrit · aujourd’hui à 10:42', 'Messaged you · today at 10:42')}</div></div></div><p class="post-copy">${tr('On garde une place pour toi samedi au jardin ?', 'Can we save you a spot at the garden on Saturday?')} 🌱</p><div class="post-actions"><button class="primary-btn" data-reply>${tr('Lui répondre', 'Reply')}</button></div></article>`
+          : `<div class="empty-state"><strong>${tr('Vous êtes à jour.', 'You’re all caught up.')}</strong>${tr('Quand quelqu’un réagira à vos publications, vous le verrez ici.', 'When someone reacts to your posts, you’ll see it here.')}</div><article class="post"><div class="post-head"><div class="avatar"><img src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=96&h=96&q=80" alt=""></div><div class="post-author"><strong>Maya Diallo</strong><div class="post-meta">${tr('Il y a 12 min', '12 min ago')}</div></div></div><p class="post-copy">${tr('Maya a aimé votre publication sur les petits cafés du quartier.', 'Maya liked your post about neighborhood cafés.')} ♥</p></article>`;
+        applyLanguage(language);
+        return;
+      }
+      feed.replaceChildren(...feedPosts);
+      updateFeed();
+    }
+
+    function setAuthMode(mode) {
+      authMode = mode;
+      const registering = mode === 'register';
+      document.querySelectorAll('[data-auth-mode]').forEach((button) => button.classList.toggle('active', button.dataset.authMode === mode));
+      document.querySelector('#name-field').hidden = !registering;
+      document.querySelector('#auth-name').required = registering;
+      document.querySelector('#confirm-field').hidden = !registering;
+      document.querySelector('#auth-confirm').required = registering;
+      document.querySelector('#auth-password').autocomplete = registering ? 'new-password' : 'current-password';
+      document.querySelector('#auth-title').textContent = registering ? tr('Créer votre compte', 'Create your account') : tr('Ravi de vous revoir', 'Welcome back');
+      document.querySelector('.auth-subtitle').textContent = registering ? tr('Rejoignez votre communauté.', 'Join your community.') : tr('Connectez-vous pour retrouver votre fil.', 'Sign in to catch up with your feed.');
+      document.querySelector('#auth-submit').textContent = registering ? tr('Créer un compte', 'Create account') : tr('Se connecter', 'Sign in');
+      document.querySelector('#auth-feedback').textContent = '';
+    }
+
+    function showAuthScreen() {
+      currentAccount = null;
+      document.querySelector('#app-shell').hidden = true;
+      document.querySelector('#auth-shell').hidden = false;
+      setAuthMode('login');
+    }
+
+    async function showAuthenticatedApp(account) {
+      currentAccount = account;
+      const adminCheck = await apiRequest('/auth/admin-check');
+      currentAccount.admin = adminCheck.admin;
+      document.querySelector('#profile-name').textContent = account.displayName;
+      document.querySelector('#profile-email').textContent = account.email;
+      document.querySelectorAll('[data-admin-only]').forEach((button) => { button.hidden = !currentAccount.admin; });
+      document.querySelector('#auth-shell').hidden = true;
+      document.querySelector('#app-shell').hidden = false;
+      await setView('feed');
+    }
+
+    async function submitAuth(event) {
+      event.preventDefault();
+      const feedback = document.querySelector('#auth-feedback');
+      const password = document.querySelector('#auth-password').value;
+      if (authMode === 'register' && password !== document.querySelector('#auth-confirm').value) {
+        feedback.textContent = tr('Les mots de passe ne correspondent pas.', 'Passwords do not match.');
+        return;
+      }
+      const requestBody = authMode === 'register'
+        ? { displayName: document.querySelector('#auth-name').value.trim(), email: document.querySelector('#auth-email').value.trim(), password }
+        : { email: document.querySelector('#auth-email').value.trim(), password };
+      try {
+        const account = await apiRequest(`/auth/${authMode}`, { method: 'POST', body: JSON.stringify(requestBody) });
+        document.querySelector('#auth-form').reset();
+        await showAuthenticatedApp(account);
+      } catch (error) {
+        const messages = {
+          email_already_registered: tr('Cette adresse e-mail a déjà un compte.', 'An account already exists for this email.'),
+          invalid_credentials: tr('Adresse e-mail ou mot de passe incorrect.', 'Email or password is incorrect.'),
+          account_suspended: tr('Ce compte est suspendu. Contactez l’administration.', 'This account is suspended. Contact an administrator.'),
+          csrf_validation_failed: tr('Votre session a expiré. Réessayez.', 'Your session expired. Please try again.'),
+          request_failed: tr('Une erreur est survenue. Réessayez.', 'Something went wrong. Please try again.')
+        };
+        feedback.textContent = messages[error.message] || tr('Le serveur ne répond pas. Vérifiez que Mosaïque est démarré.', 'The server is unavailable. Make sure Mosaïque is running.');
+      }
+    }
+
+    async function signOut() {
+      try { await apiRequest('/auth/logout', { method: 'POST' }); }
+      catch { }
+      csrfToken = null;
+      await refreshCsrf();
+      showAuthScreen();
+    }
+
+    document.addEventListener('click', (event) => {
+      const target = event.target.closest('button');
+      if (!target) return;
+      if (target.dataset.view) { setView(target.dataset.view).catch(() => showToast('Impossible de charger cette page.')); return; }
+      if (target.matches('#logout-button')) { signOut().catch(() => showAuthScreen()); return; }
+      if (target.dataset.accountStatus) {
+        const status = target.textContent === tr('Suspendre', 'Suspend') ? 'SUSPENDED' : 'ACTIVE';
+        apiRequest(`/admin/accounts/${target.dataset.accountStatus}/status`, { method: 'PATCH', body: JSON.stringify({ status }) })
+          .then(renderAdminDashboard)
+          .then(() => showToast(status === 'SUSPENDED' ? tr('Compte suspendu.', 'Account suspended.') : tr('Compte réactivé.', 'Account reactivated.')))
+          .catch(() => showToast(tr('La modification du compte a échoué.', 'Could not update this account.')));
+        return;
+      }
+      if (target.matches('[data-moderate]')) {
+        target.closest('.report-row').remove();
+        const remaining = document.querySelectorAll('.report-row').length;
+        document.querySelector('#report-total').textContent = `${remaining} signalement${remaining === 1 ? '' : 's'}`;
+        showToast('Signalement marqué comme examiné.');
+      }
+      if (target.matches('.feed-tab')) {
+        activeFilter = target.dataset.filter;
+        document.querySelectorAll('.feed-tab').forEach((tab) => {
+          const selected = tab === target;
+          tab.classList.toggle('active', selected);
+          tab.setAttribute('aria-selected', String(selected));
+        });
+        updateFeed();
+      }
+      if (target.matches('.like')) {
+        const liked = target.classList.toggle('liked');
+        target.setAttribute('aria-pressed', String(liked));
+        target.querySelector('.action-icon').textContent = liked ? '♥' : '♡';
+        const count = target.querySelector('.count');
+        count.textContent = Number(count.textContent) + (liked ? 1 : -1);
+      }
+      if (target.matches('.save')) {
+        const saved = target.classList.toggle('saved');
+        target.setAttribute('aria-pressed', String(saved));
+        target.setAttribute('aria-label', saved ? 'Retirer des publications enregistrées' : 'Enregistrer cette publication');
+        target.querySelector('.action-icon').textContent = saved ? '▣' : '♧';
+        showToast(saved ? 'Publication enregistrée.' : 'Publication retirée des éléments enregistrés.');
+        updateFeed();
+      }
+      if (target.matches('.comment-toggle')) {
+        const area = target.closest('.post').querySelector('.comment-area');
+        area.classList.toggle('open');
+        if (area.classList.contains('open')) area.querySelector('input').focus();
+      }
+      if (target.matches('.share')) {
+        const text = target.closest('.post').querySelector('.post-copy').innerText;
+        if (navigator.share) navigator.share({ title: 'Mosaïque', text }).catch(() => {});
+        else if (navigator.clipboard) navigator.clipboard.writeText(text).then(() => showToast('Texte copié pour le partager.'));
+        else showToast('Partage bientôt disponible.');
+      }
+      if (target.matches('.follow-btn')) {
+        const followed = target.classList.toggle('following');
+        target.textContent = followed ? 'Suivi' : 'Suivre';
+        showToast(followed ? 'Vous suivez ce profil.' : 'Vous ne suivez plus ce profil.');
+      }
+      if (target.matches('.story')) showToast(target.dataset.story === 'Votre story' ? 'Ajout de story bientôt disponible.' : `Story de ${target.dataset.story} bientôt disponible.`);
+      if (target.matches('#focus-compose')) document.querySelector('#post-text').focus();
+      if (target.matches('#new-prompt')) {
+        const prompts = ['Quel endroit vous apaise instantanément ?', 'Qu’avez-vous appris récemment par hasard ?', 'Quelle chanson vous accompagne en ce moment ?', 'Quel petit rituel rend vos matins meilleurs ?'];
+        const current = document.querySelector('#prompt-text').textContent;
+        const choices = prompts.filter((prompt) => prompt !== current);
+        document.querySelector('#prompt-text').textContent = choices[Math.floor(Math.random() * choices.length)];
+      }
+      if (target.matches('#answer-prompt')) { document.querySelector('#post-text').value = `${document.querySelector('#prompt-text').textContent}\n`; document.querySelector('#post-text').focus(); }
+      if (target.matches('#all-friends')) showToast('Vous découvrez déjà les suggestions du jour.');
+      if (target.matches('[data-reply]')) { setView('feed'); document.querySelector('#post-text').focus(); showToast('Répondez à Lina depuis votre fil.'); }
+      if (target.dataset.legal) openLegal(target.dataset.legal);
+      if (target.matches('.modal-close')) {
+        closeLegal();
+      }
+    });
+
+    document.querySelectorAll('[data-auth-mode]').forEach((button) => button.addEventListener('click', () => setAuthMode(button.dataset.authMode)));
+    document.querySelector('#auth-form').addEventListener('submit', submitAuth);
+    document.querySelectorAll('.language-select').forEach((select) => select.addEventListener('change', () => applyLanguage(select.value)));
+    document.querySelectorAll('[data-theme-toggle]').forEach((button) => button.addEventListener('click', () => {
+      const nextTheme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+      document.documentElement.dataset.theme = nextTheme;
+      localStorage.setItem('mosaique-theme', nextTheme);
+      applyLanguage(language);
+    }));
+    document.querySelector('#logout-button').addEventListener('click', () => signOut().catch(showAuthScreen));
+
+    searchInput.addEventListener('input', updateFeed);
+
+    document.querySelector('#composer').addEventListener('submit', (event) => {
+      event.preventDefault();
+      const textarea = document.querySelector('#post-text');
+      const content = textarea.value.trim();
+      if (!content) { textarea.focus(); showToast('Écrivez quelques mots avant de publier.'); return; }
+      const post = document.createElement('article');
+      post.className = 'post';
+      post.dataset.following = 'true';
+      post.dataset.author = 'Camille Moreau';
+      post.dataset.search = `camille moreau ${content}`;
+      post.innerHTML = `<header class="post-head"><div class="avatar"><img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=96&h=96&q=80" alt=""></div><div class="post-author"><strong>Camille Moreau</strong><div class="post-meta">À l’instant</div></div><button class="more-btn" aria-label="Plus d'options">···</button></header><p class="post-copy"></p><div class="post-actions"><button class="action-btn like" aria-label="Aimer cette publication" aria-pressed="false"><span class="action-icon">♡</span><span class="count">0</span></button><button class="action-btn comment-toggle" aria-label="Commenter cette publication"><span class="action-icon">◯</span><span class="count">0</span></button><button class="action-btn share" aria-label="Partager cette publication"><span class="action-icon">↗</span><span>Partager</span></button><button class="action-btn save" aria-label="Enregistrer cette publication" aria-pressed="false"><span class="action-icon">♧</span></button></div><div class="comment-area"><div class="comments"></div><form class="comment-form"><input aria-label="Ajouter un commentaire" placeholder="Écrire un commentaire…"><button type="submit">Envoyer</button></form></div>`;
+      post.querySelector('.post-copy').textContent = content;
+      feedPosts.add(post);
+      feed.prepend(post);
+      textarea.value = '';
+      showToast('Votre publication est en ligne.');
+      updateFeed();
+    });
+
+    feed.addEventListener('submit', (event) => {
+      if (!event.target.matches('.comment-form')) return;
+      event.preventDefault();
+      const input = event.target.querySelector('input');
+      const text = input.value.trim();
+      if (!text) return;
+      const comment = document.createElement('div');
+      comment.className = 'comment';
+      const author = document.createElement('strong');
+      author.textContent = 'Camille Moreau';
+      comment.append(author, document.createTextNode(` ${text}`));
+      event.target.closest('.comment-area').querySelector('.comments').append(comment);
+      const count = event.target.closest('.post').querySelector('.comment-toggle .count');
+      count.textContent = Number(count.textContent) + 1;
+      input.value = '';
+    });
+
+    const legalContent = {
+      privacy: '<h2 id="legal-title">Politique de confidentialité</h2><p><strong>Dernière mise à jour : 29 septembre 2026</strong></p><p>Mosaïque est une maquette de réseau social. Les publications, réactions, recherches et commentaires restent temporaires dans la page et ne sont pas envoyés à un serveur.</p><h3>Base locale des comptes</h3><p>Pour cette démonstration, les comptes fictifs (nom, identifiant, rôle, état) et le compte actif sont conservés dans IndexedDB sur cet appareil afin de faire fonctionner le sélecteur user/admin. Ils ne sont pas synchronisés ni transmis par l’application.</p><h3>Photographies et traceurs</h3><p>Les photographies sont chargées depuis Unsplash et nécessitent une connexion internet. Cette page n’utilise ni cookie ni outil de suivi.</p><h3>Vos choix</h3><p>Les données de démonstration peuvent être supprimées en effaçant le stockage du site dans le navigateur. Pour une mise en production, cette notice devra décrire précisément les traitements, leur durée et les coordonnées de l’éditeur.</p>',
+      terms: '<h2 id="legal-title">Conditions générales d’utilisation</h2><p><strong>Version de démonstration · 29 septembre 2026</strong></p><p>Mosaïque est une maquette d’interface fournie à titre illustratif. Elle ne constitue pas un service en ligne et ne permet pas de publier du contenu à destination d’autres personnes.</p><h3>Utilisation de la démonstration</h3><p>Les comptes de démonstration et leurs rôles sont stockés dans IndexedDB sur cet appareil. Le changement de profil sert uniquement à prévisualiser les interfaces utilisateur et administrateur; il ne constitue pas une authentification ni un contrôle d’accès sécurisé. Les publications, réactions et commentaires restent temporaires.</p><h3>Comportement et contenus</h3><p>Dans un service réel, chaque personne resterait responsable des contenus qu’elle publie et devrait respecter les droits d’autrui, la loi applicable et les règles de la communauté.</p><h3>Évolution</h3><p>Avant toute mise en production, les rôles et permissions devront être contrôlés par un serveur et ces conditions devront identifier l’éditeur, le service proposé, les responsabilités, la modération, la propriété intellectuelle et les voies de contact.</p>'
+    };
+    const modal = document.querySelector('#legal-modal');
+    function openLegal(type) { document.querySelector('#legal-content').innerHTML = legalContent[type]; modal.classList.add('open'); document.querySelector('.modal-close').focus(); }
+    function closeLegal() { modal.classList.remove('open'); }
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        closeLegal();
+        document.querySelector('#account-modal').classList.remove('open');
+      }
+    });
+
+    async function initializeApplication() {
+      await database.initialize();
+      const savedId = await database.getSetting('activeAccountId');
+      const savedAccount = savedId ? await database.getAccount(savedId) : null;
+      await useAccount(savedAccount?.status === 'active' ? savedAccount.id : 'camille');
+    }
+
+    initializeApplication().catch(() => showToast('La base locale est indisponible dans ce navigateur.'));
+  </script>
+</body>
+</html>
