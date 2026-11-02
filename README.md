@@ -1,4 +1,4 @@
-# Mosaïque
+# Mosaïc
 
 Maquette responsive d'un réseau social francophone, construite en HTML, CSS et JavaScript natifs. Aucun serveur ni gestionnaire de paquets n'est nécessaire.
 
